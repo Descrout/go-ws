@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option go_package = "ws-server/main";
+
+message Player {
+    float x = 1;
+    float y = 2;
+    float angle = 3;
+}
+
+message Zombie {
+    float x = 1;
+    float y = 2;
+    float angle = 3;
+}
+
+message Bullet {
+    float x = 1;
+    float y = 2;
+}
+
+message State {
+    uint32 last_seq = 1;
+    repeated Player players = 2;
+    repeated Zombie zombies = 3;
+    repeated Bullet bullets = 4;
+}
+
+message GameInput {
+    float move = 1;
+    float look = 2;
+    bool moving = 3;
+    bool shooting = 4;
+}
