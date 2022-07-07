@@ -10,7 +10,7 @@ class Parser {
     static serialize(obj) {
         let pbf = new Pbf();
         pbf.writeBytes([0]);
-        GameInput.write(obj, pbf);
+        UserInput.write(obj, pbf);
         return pbf.finish().slice(1);
     }
 

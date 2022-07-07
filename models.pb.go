@@ -25,9 +25,10 @@ type Player struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	X     float32 `protobuf:"fixed32,1,opt,name=x,proto3" json:"x,omitempty"`
-	Y     float32 `protobuf:"fixed32,2,opt,name=y,proto3" json:"y,omitempty"`
-	Angle float32 `protobuf:"fixed32,3,opt,name=angle,proto3" json:"angle,omitempty"`
+	Id    uint32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	X     float32 `protobuf:"fixed32,2,opt,name=x,proto3" json:"x,omitempty"`
+	Y     float32 `protobuf:"fixed32,3,opt,name=y,proto3" json:"y,omitempty"`
+	Angle float32 `protobuf:"fixed32,4,opt,name=angle,proto3" json:"angle,omitempty"`
 }
 
 func (x *Player) Reset() {
@@ -62,6 +63,13 @@ func (*Player) Descriptor() ([]byte, []int) {
 	return file_models_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *Player) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
 func (x *Player) GetX() float32 {
 	if x != nil {
 		return x.X
@@ -83,18 +91,18 @@ func (x *Player) GetAngle() float32 {
 	return 0
 }
 
-type Zombie struct {
+type Snowball struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	X     float32 `protobuf:"fixed32,1,opt,name=x,proto3" json:"x,omitempty"`
-	Y     float32 `protobuf:"fixed32,2,opt,name=y,proto3" json:"y,omitempty"`
-	Angle float32 `protobuf:"fixed32,3,opt,name=angle,proto3" json:"angle,omitempty"`
+	Id uint32  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	X  float32 `protobuf:"fixed32,2,opt,name=x,proto3" json:"x,omitempty"`
+	Y  float32 `protobuf:"fixed32,3,opt,name=y,proto3" json:"y,omitempty"`
 }
 
-func (x *Zombie) Reset() {
-	*x = Zombie{}
+func (x *Snowball) Reset() {
+	*x = Snowball{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_models_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -102,13 +110,13 @@ func (x *Zombie) Reset() {
 	}
 }
 
-func (x *Zombie) String() string {
+func (x *Snowball) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Zombie) ProtoMessage() {}
+func (*Snowball) ProtoMessage() {}
 
-func (x *Zombie) ProtoReflect() protoreflect.Message {
+func (x *Snowball) ProtoReflect() protoreflect.Message {
 	mi := &file_models_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -120,81 +128,26 @@ func (x *Zombie) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Zombie.ProtoReflect.Descriptor instead.
-func (*Zombie) Descriptor() ([]byte, []int) {
+// Deprecated: Use Snowball.ProtoReflect.Descriptor instead.
+func (*Snowball) Descriptor() ([]byte, []int) {
 	return file_models_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Zombie) GetX() float32 {
+func (x *Snowball) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Snowball) GetX() float32 {
 	if x != nil {
 		return x.X
 	}
 	return 0
 }
 
-func (x *Zombie) GetY() float32 {
-	if x != nil {
-		return x.Y
-	}
-	return 0
-}
-
-func (x *Zombie) GetAngle() float32 {
-	if x != nil {
-		return x.Angle
-	}
-	return 0
-}
-
-type Bullet struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	X float32 `protobuf:"fixed32,1,opt,name=x,proto3" json:"x,omitempty"`
-	Y float32 `protobuf:"fixed32,2,opt,name=y,proto3" json:"y,omitempty"`
-}
-
-func (x *Bullet) Reset() {
-	*x = Bullet{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_models_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *Bullet) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Bullet) ProtoMessage() {}
-
-func (x *Bullet) ProtoReflect() protoreflect.Message {
-	mi := &file_models_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Bullet.ProtoReflect.Descriptor instead.
-func (*Bullet) Descriptor() ([]byte, []int) {
-	return file_models_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *Bullet) GetX() float32 {
-	if x != nil {
-		return x.X
-	}
-	return 0
-}
-
-func (x *Bullet) GetY() float32 {
+func (x *Snowball) GetY() float32 {
 	if x != nil {
 		return x.Y
 	}
@@ -206,16 +159,15 @@ type State struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	LastSeq uint32    `protobuf:"varint,1,opt,name=last_seq,json=lastSeq,proto3" json:"last_seq,omitempty"`
-	Players []*Player `protobuf:"bytes,2,rep,name=players,proto3" json:"players,omitempty"`
-	Zombies []*Zombie `protobuf:"bytes,3,rep,name=zombies,proto3" json:"zombies,omitempty"`
-	Bullets []*Bullet `protobuf:"bytes,4,rep,name=bullets,proto3" json:"bullets,omitempty"`
+	MyLastSeq uint32      `protobuf:"varint,1,opt,name=my_last_seq,json=myLastSeq,proto3" json:"my_last_seq,omitempty"`
+	Players   []*Player   `protobuf:"bytes,2,rep,name=players,proto3" json:"players,omitempty"`
+	Snowballs []*Snowball `protobuf:"bytes,3,rep,name=snowballs,proto3" json:"snowballs,omitempty"`
 }
 
 func (x *State) Reset() {
 	*x = State{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_models_proto_msgTypes[3]
+		mi := &file_models_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -228,7 +180,7 @@ func (x *State) String() string {
 func (*State) ProtoMessage() {}
 
 func (x *State) ProtoReflect() protoreflect.Message {
-	mi := &file_models_proto_msgTypes[3]
+	mi := &file_models_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -241,12 +193,12 @@ func (x *State) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use State.ProtoReflect.Descriptor instead.
 func (*State) Descriptor() ([]byte, []int) {
-	return file_models_proto_rawDescGZIP(), []int{3}
+	return file_models_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *State) GetLastSeq() uint32 {
+func (x *State) GetMyLastSeq() uint32 {
 	if x != nil {
-		return x.LastSeq
+		return x.MyLastSeq
 	}
 	return 0
 }
@@ -258,48 +210,42 @@ func (x *State) GetPlayers() []*Player {
 	return nil
 }
 
-func (x *State) GetZombies() []*Zombie {
+func (x *State) GetSnowballs() []*Snowball {
 	if x != nil {
-		return x.Zombies
+		return x.Snowballs
 	}
 	return nil
 }
 
-func (x *State) GetBullets() []*Bullet {
-	if x != nil {
-		return x.Bullets
-	}
-	return nil
-}
-
-type GameInput struct {
+type UserInput struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Move     float32 `protobuf:"fixed32,1,opt,name=move,proto3" json:"move,omitempty"`
-	Look     float32 `protobuf:"fixed32,2,opt,name=look,proto3" json:"look,omitempty"`
-	Moving   bool    `protobuf:"varint,3,opt,name=moving,proto3" json:"moving,omitempty"`
-	Shooting bool    `protobuf:"varint,4,opt,name=shooting,proto3" json:"shooting,omitempty"`
+	MoveAngle float32 `protobuf:"fixed32,1,opt,name=move_angle,json=moveAngle,proto3" json:"move_angle,omitempty"`
+	LookAngle float32 `protobuf:"fixed32,2,opt,name=look_angle,json=lookAngle,proto3" json:"look_angle,omitempty"`
+	InputTime float32 `protobuf:"fixed32,3,opt,name=input_time,json=inputTime,proto3" json:"input_time,omitempty"`
+	Moving    bool    `protobuf:"varint,4,opt,name=moving,proto3" json:"moving,omitempty"`
+	Shooting  bool    `protobuf:"varint,5,opt,name=shooting,proto3" json:"shooting,omitempty"`
 }
 
-func (x *GameInput) Reset() {
-	*x = GameInput{}
+func (x *UserInput) Reset() {
+	*x = UserInput{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_models_proto_msgTypes[4]
+		mi := &file_models_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
 }
 
-func (x *GameInput) String() string {
+func (x *UserInput) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GameInput) ProtoMessage() {}
+func (*UserInput) ProtoMessage() {}
 
-func (x *GameInput) ProtoReflect() protoreflect.Message {
-	mi := &file_models_proto_msgTypes[4]
+func (x *UserInput) ProtoReflect() protoreflect.Message {
+	mi := &file_models_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -310,33 +256,40 @@ func (x *GameInput) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GameInput.ProtoReflect.Descriptor instead.
-func (*GameInput) Descriptor() ([]byte, []int) {
-	return file_models_proto_rawDescGZIP(), []int{4}
+// Deprecated: Use UserInput.ProtoReflect.Descriptor instead.
+func (*UserInput) Descriptor() ([]byte, []int) {
+	return file_models_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GameInput) GetMove() float32 {
+func (x *UserInput) GetMoveAngle() float32 {
 	if x != nil {
-		return x.Move
+		return x.MoveAngle
 	}
 	return 0
 }
 
-func (x *GameInput) GetLook() float32 {
+func (x *UserInput) GetLookAngle() float32 {
 	if x != nil {
-		return x.Look
+		return x.LookAngle
 	}
 	return 0
 }
 
-func (x *GameInput) GetMoving() bool {
+func (x *UserInput) GetInputTime() float32 {
+	if x != nil {
+		return x.InputTime
+	}
+	return 0
+}
+
+func (x *UserInput) GetMoving() bool {
 	if x != nil {
 		return x.Moving
 	}
 	return false
 }
 
-func (x *GameInput) GetShooting() bool {
+func (x *UserInput) GetShooting() bool {
 	if x != nil {
 		return x.Shooting
 	}
@@ -346,34 +299,34 @@ func (x *GameInput) GetShooting() bool {
 var File_models_proto protoreflect.FileDescriptor
 
 var file_models_proto_rawDesc = []byte{
-	0x0a, 0x0c, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x3a,
-	0x0a, 0x06, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x12, 0x0c, 0x0a, 0x01, 0x78, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x02, 0x52, 0x01, 0x78, 0x12, 0x0c, 0x0a, 0x01, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x02, 0x52, 0x01, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x61, 0x6e, 0x67, 0x6c, 0x65, 0x18, 0x03, 0x20,
-	0x01, 0x28, 0x02, 0x52, 0x05, 0x61, 0x6e, 0x67, 0x6c, 0x65, 0x22, 0x3a, 0x0a, 0x06, 0x5a, 0x6f,
-	0x6d, 0x62, 0x69, 0x65, 0x12, 0x0c, 0x0a, 0x01, 0x78, 0x18, 0x01, 0x20, 0x01, 0x28, 0x02, 0x52,
-	0x01, 0x78, 0x12, 0x0c, 0x0a, 0x01, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x01, 0x79,
-	0x12, 0x14, 0x0a, 0x05, 0x61, 0x6e, 0x67, 0x6c, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52,
-	0x05, 0x61, 0x6e, 0x67, 0x6c, 0x65, 0x22, 0x24, 0x0a, 0x06, 0x42, 0x75, 0x6c, 0x6c, 0x65, 0x74,
-	0x12, 0x0c, 0x0a, 0x01, 0x78, 0x18, 0x01, 0x20, 0x01, 0x28, 0x02, 0x52, 0x01, 0x78, 0x12, 0x0c,
-	0x0a, 0x01, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x01, 0x79, 0x22, 0x8b, 0x01, 0x0a,
-	0x05, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x19, 0x0a, 0x08, 0x6c, 0x61, 0x73, 0x74, 0x5f, 0x73,
-	0x65, 0x71, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x07, 0x6c, 0x61, 0x73, 0x74, 0x53, 0x65,
-	0x71, 0x12, 0x21, 0x0a, 0x07, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x73, 0x18, 0x02, 0x20, 0x03,
-	0x28, 0x0b, 0x32, 0x07, 0x2e, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x52, 0x07, 0x70, 0x6c, 0x61,
-	0x79, 0x65, 0x72, 0x73, 0x12, 0x21, 0x0a, 0x07, 0x7a, 0x6f, 0x6d, 0x62, 0x69, 0x65, 0x73, 0x18,
-	0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x07, 0x2e, 0x5a, 0x6f, 0x6d, 0x62, 0x69, 0x65, 0x52, 0x07,
-	0x7a, 0x6f, 0x6d, 0x62, 0x69, 0x65, 0x73, 0x12, 0x21, 0x0a, 0x07, 0x62, 0x75, 0x6c, 0x6c, 0x65,
-	0x74, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x07, 0x2e, 0x42, 0x75, 0x6c, 0x6c, 0x65,
-	0x74, 0x52, 0x07, 0x62, 0x75, 0x6c, 0x6c, 0x65, 0x74, 0x73, 0x22, 0x67, 0x0a, 0x09, 0x47, 0x61,
-	0x6d, 0x65, 0x49, 0x6e, 0x70, 0x75, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x6d, 0x6f, 0x76, 0x65, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x02, 0x52, 0x04, 0x6d, 0x6f, 0x76, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x6c,
-	0x6f, 0x6f, 0x6b, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x04, 0x6c, 0x6f, 0x6f, 0x6b, 0x12,
-	0x16, 0x0a, 0x06, 0x6d, 0x6f, 0x76, 0x69, 0x6e, 0x67, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52,
-	0x06, 0x6d, 0x6f, 0x76, 0x69, 0x6e, 0x67, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x68, 0x6f, 0x6f, 0x74,
-	0x69, 0x6e, 0x67, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x73, 0x68, 0x6f, 0x6f, 0x74,
-	0x69, 0x6e, 0x67, 0x42, 0x10, 0x5a, 0x0e, 0x77, 0x73, 0x2d, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72,
-	0x2f, 0x6d, 0x61, 0x69, 0x6e, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x0a, 0x0c, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x4a,
+	0x0a, 0x06, 0x50, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0d, 0x52, 0x02, 0x69, 0x64, 0x12, 0x0c, 0x0a, 0x01, 0x78, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x02, 0x52, 0x01, 0x78, 0x12, 0x0c, 0x0a, 0x01, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x02, 0x52, 0x01, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x61, 0x6e, 0x67, 0x6c, 0x65, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x02, 0x52, 0x05, 0x61, 0x6e, 0x67, 0x6c, 0x65, 0x22, 0x36, 0x0a, 0x08, 0x53, 0x6e,
+	0x6f, 0x77, 0x62, 0x61, 0x6c, 0x6c, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0d, 0x52, 0x02, 0x69, 0x64, 0x12, 0x0c, 0x0a, 0x01, 0x78, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x02, 0x52, 0x01, 0x78, 0x12, 0x0c, 0x0a, 0x01, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52,
+	0x01, 0x79, 0x22, 0x73, 0x0a, 0x05, 0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x1e, 0x0a, 0x0b, 0x6d,
+	0x79, 0x5f, 0x6c, 0x61, 0x73, 0x74, 0x5f, 0x73, 0x65, 0x71, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d,
+	0x52, 0x09, 0x6d, 0x79, 0x4c, 0x61, 0x73, 0x74, 0x53, 0x65, 0x71, 0x12, 0x21, 0x0a, 0x07, 0x70,
+	0x6c, 0x61, 0x79, 0x65, 0x72, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x07, 0x2e, 0x50,
+	0x6c, 0x61, 0x79, 0x65, 0x72, 0x52, 0x07, 0x70, 0x6c, 0x61, 0x79, 0x65, 0x72, 0x73, 0x12, 0x27,
+	0x0a, 0x09, 0x73, 0x6e, 0x6f, 0x77, 0x62, 0x61, 0x6c, 0x6c, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28,
+	0x0b, 0x32, 0x09, 0x2e, 0x53, 0x6e, 0x6f, 0x77, 0x62, 0x61, 0x6c, 0x6c, 0x52, 0x09, 0x73, 0x6e,
+	0x6f, 0x77, 0x62, 0x61, 0x6c, 0x6c, 0x73, 0x22, 0x9c, 0x01, 0x0a, 0x09, 0x55, 0x73, 0x65, 0x72,
+	0x49, 0x6e, 0x70, 0x75, 0x74, 0x12, 0x1d, 0x0a, 0x0a, 0x6d, 0x6f, 0x76, 0x65, 0x5f, 0x61, 0x6e,
+	0x67, 0x6c, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x02, 0x52, 0x09, 0x6d, 0x6f, 0x76, 0x65, 0x41,
+	0x6e, 0x67, 0x6c, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x6c, 0x6f, 0x6f, 0x6b, 0x5f, 0x61, 0x6e, 0x67,
+	0x6c, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x52, 0x09, 0x6c, 0x6f, 0x6f, 0x6b, 0x41, 0x6e,
+	0x67, 0x6c, 0x65, 0x12, 0x1d, 0x0a, 0x0a, 0x69, 0x6e, 0x70, 0x75, 0x74, 0x5f, 0x74, 0x69, 0x6d,
+	0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x02, 0x52, 0x09, 0x69, 0x6e, 0x70, 0x75, 0x74, 0x54, 0x69,
+	0x6d, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x6d, 0x6f, 0x76, 0x69, 0x6e, 0x67, 0x18, 0x04, 0x20, 0x01,
+	0x28, 0x08, 0x52, 0x06, 0x6d, 0x6f, 0x76, 0x69, 0x6e, 0x67, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x68,
+	0x6f, 0x6f, 0x74, 0x69, 0x6e, 0x67, 0x18, 0x05, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x73, 0x68,
+	0x6f, 0x6f, 0x74, 0x69, 0x6e, 0x67, 0x42, 0x10, 0x5a, 0x0e, 0x77, 0x73, 0x2d, 0x73, 0x65, 0x72,
+	0x76, 0x65, 0x72, 0x2f, 0x6d, 0x61, 0x69, 0x6e, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -388,23 +341,21 @@ func file_models_proto_rawDescGZIP() []byte {
 	return file_models_proto_rawDescData
 }
 
-var file_models_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_models_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_models_proto_goTypes = []interface{}{
 	(*Player)(nil),    // 0: Player
-	(*Zombie)(nil),    // 1: Zombie
-	(*Bullet)(nil),    // 2: Bullet
-	(*State)(nil),     // 3: State
-	(*GameInput)(nil), // 4: GameInput
+	(*Snowball)(nil),  // 1: Snowball
+	(*State)(nil),     // 2: State
+	(*UserInput)(nil), // 3: UserInput
 }
 var file_models_proto_depIdxs = []int32{
 	0, // 0: State.players:type_name -> Player
-	1, // 1: State.zombies:type_name -> Zombie
-	2, // 2: State.bullets:type_name -> Bullet
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1, // 1: State.snowballs:type_name -> Snowball
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_models_proto_init() }
@@ -426,7 +377,7 @@ func file_models_proto_init() {
 			}
 		}
 		file_models_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Zombie); i {
+			switch v := v.(*Snowball); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -438,18 +389,6 @@ func file_models_proto_init() {
 			}
 		}
 		file_models_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*Bullet); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_models_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*State); i {
 			case 0:
 				return &v.state
@@ -461,8 +400,8 @@ func file_models_proto_init() {
 				return nil
 			}
 		}
-		file_models_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GameInput); i {
+		file_models_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserInput); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -480,7 +419,7 @@ func file_models_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_models_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

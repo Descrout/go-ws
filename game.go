@@ -42,7 +42,7 @@ func (g *Game) run() {
 	}
 }
 
-func (g *Game) sendIndividual() {
+func (g *Game) sendToAll() {
 	state := State{
 		Players: []*Player{},
 	}
@@ -75,5 +75,5 @@ func (g *Game) update() {
 		client.player.Y += client.dy
 	}
 
-	g.sendIndividual()
+	g.sendToAll()
 }
