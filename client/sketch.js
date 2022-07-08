@@ -1,7 +1,10 @@
-const players = {};
+const players = new Map();
+const keys = new Map(); 
 
 let dx = 0;
 let dy = 0;
+let sequence = 0;
+
 
 function setup() {
 	canvas = createCanvas(960, 540);
@@ -38,42 +41,45 @@ function draw() {
 
 function update(dt) {
 	if(!connectionSuccess) return;
+
+	dx = 0;
+	dy = 0;
+	if(keys.get(65)) { //left
+		dx -= 1;
+	}
+	if(keys.get(87)) { //up
+		dy -= 1;
+	}
+	if(keys.get(68)) { //right
+		dx += 1;
+	}
+	if(keys.get(83)) { //down
+		dy += 1;
+	}
+
 	socket.send({
 		input_time: dt,
 		move_angle: atan2(dy, dx),
 		moving: dx != 0 || dy != 0,
 		shooting: false,
 		look_angle: 0,
+		sequence: sequence++,
 	});
 }
 
 function keyPressed() {
-	dx = 0;
-	dy = 0;
-	if(keyCode == 65) { //left
-		dx -= 1;
-	}
-	if(keyCode == 87) { //up
-		dy -= 1;
-	}
-	if(keyCode == 68) { //right
-		dx += 1;
-	}
-	if(keyCode == 83) { //down
-		dy += 1;
-	}
+	keys.set(keyCode, true);
 }
 
 function keyReleased() {
-	dx = 0;
-	dy = 0;
+	keys.delete(keyCode);
 }
 
 function received(header, obj) {
 	state = obj;
 	players.clear();
 	for(const player of state.players) {
-		players[player.id] = new Player(player);
+		players.set(player.id, new PlayerEntity(player));
 	}
 }
 

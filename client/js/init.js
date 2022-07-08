@@ -1,4 +1,4 @@
-const address = `ws://127.0.0.1:6464`;
+const address = `ws://127.0.0.1:8080/ws`;
 
 let canvas, scaleMultiplier, mouse, socket;
 

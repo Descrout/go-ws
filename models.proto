@@ -27,4 +27,5 @@ message UserInput {
     float input_time = 3;
     bool moving = 4;
     bool shooting = 5;
+    uint32 sequence = 6;
 }

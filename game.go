@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -22,7 +21,7 @@ func newGame() *Game {
 }
 
 func (g *Game) run() {
-	ticker := time.NewTicker(time.Millisecond * 33)
+	ticker := time.NewTicker(time.Millisecond * 100)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -44,22 +43,19 @@ func (g *Game) run() {
 
 func (g *Game) sendToAll() {
 	state := State{
-		Players: []*Player{},
+		Players:   []*Player{},
+		Snowballs: []*Snowball{},
 	}
 
 	for client := range g.clients {
 		state.Players = append(state.Players, client.player)
 	}
 
-	data, err := proto.Marshal(&state)
-	if err != nil {
-		log.Printf("error: %v", err)
-		return
-	}
-
-	data = append([]byte{0}, data...)
-
 	for client := range g.clients {
+		state.MyLastSeq = client.lastSeq
+		data, _ := proto.Marshal(&state)
+		data = append([]byte{0}, data...)
+
 		select {
 		case client.send <- data:
 		default:
@@ -71,8 +67,7 @@ func (g *Game) sendToAll() {
 
 func (g *Game) update() {
 	for client := range g.clients {
-		client.player.X += client.dx
-		client.player.Y += client.dy
+		client.applyInputs()
 	}
 
 	g.sendToAll()

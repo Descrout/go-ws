@@ -15,18 +15,25 @@ type Client struct {
 	conn *websocket.Conn
 	send chan []byte
 
-	player *Player
-	dx     float32
-	dy     float32
+	player        *Player
+	pendingInputs []*UserInput
+	lastSeq       uint32
 }
 
-func (c *Client) applyInput(input *GameInput) {
-	if input.Moving {
-		c.dx = float32(math.Cos(float64(input.Move))) * 5
-		c.dy = float32(math.Sin(float64(input.Move))) * 5
-	} else {
-		c.dx = 0
-		c.dy = 0
+func (c *Client) applyInputs() {
+	for len(c.pendingInputs) > 0 {
+		var input *UserInput
+		input, c.pendingInputs = c.pendingInputs[0], c.pendingInputs[1:]
+		if math.Abs(float64(input.InputTime)) > 1.0/33.0 {
+			continue
+		}
+
+		if input.Moving {
+			c.player.X += float32(math.Cos(float64(input.MoveAngle))) * 100 * input.InputTime
+			c.player.Y += float32(math.Sin(float64(input.MoveAngle))) * 100 * input.InputTime
+		}
+
+		c.lastSeq = input.Sequence
 	}
 }
 
@@ -47,9 +54,9 @@ func (c *Client) listenRead() {
 			break
 		}
 
-		input := GameInput{}
+		input := UserInput{}
 		if err := proto.Unmarshal(message[1:], &input); err == nil {
-			c.applyInput(&input)
+			c.pendingInputs = append(c.pendingInputs, &input)
 		}
 	}
 }
@@ -93,7 +100,7 @@ func serveWs(game *Game, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{game: game, conn: conn, send: make(chan []byte, 256), player: &Player{}}
+	client := &Client{game: game, conn: conn, send: make(chan []byte, 256), player: &Player{}, pendingInputs: []*UserInput{}}
 	client.game.register <- client
 
 	go client.listenWrite()

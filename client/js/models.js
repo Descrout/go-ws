@@ -61,7 +61,7 @@ State.write = function (obj, pbf) {
 var UserInput = {};
 
 UserInput.read = function (pbf, end) {
-    return pbf.readFields(UserInput._readField, {move_angle: 0, look_angle: 0, input_time: 0, moving: false, shooting: false}, end);
+    return pbf.readFields(UserInput._readField, {move_angle: 0, look_angle: 0, input_time: 0, moving: false, shooting: false, sequence: 0}, end);
 };
 UserInput._readField = function (tag, obj, pbf) {
     if (tag === 1) obj.move_angle = pbf.readFloat();
@@ -69,6 +69,7 @@ UserInput._readField = function (tag, obj, pbf) {
     else if (tag === 3) obj.input_time = pbf.readFloat();
     else if (tag === 4) obj.moving = pbf.readBoolean();
     else if (tag === 5) obj.shooting = pbf.readBoolean();
+    else if (tag === 6) obj.sequence = pbf.readVarint();
 };
 UserInput.write = function (obj, pbf) {
     if (obj.move_angle) pbf.writeFloatField(1, obj.move_angle);
@@ -76,4 +77,5 @@ UserInput.write = function (obj, pbf) {
     if (obj.input_time) pbf.writeFloatField(3, obj.input_time);
     if (obj.moving) pbf.writeBooleanField(4, obj.moving);
     if (obj.shooting) pbf.writeBooleanField(5, obj.shooting);
+    if (obj.sequence) pbf.writeVarintField(6, obj.sequence);
 };
