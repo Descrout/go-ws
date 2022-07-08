@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"time"
 
 	"google.golang.org/protobuf/proto"
@@ -22,7 +23,7 @@ func newGame() *Game {
 }
 
 func (g *Game) run() {
-	ticker := time.NewTicker(time.Millisecond * 100)
+	ticker := time.NewTicker(time.Millisecond * 50)
 	defer func() {
 		ticker.Stop()
 	}()
@@ -54,6 +55,7 @@ func (g *Game) sendToAll() {
 
 	for client := range g.clients {
 		state.Players = append(state.Players, client.player)
+		state.Snowballs = append(state.Snowballs, client.snowballs...)
 	}
 
 	for client := range g.clients {
@@ -73,6 +75,17 @@ func (g *Game) sendToAll() {
 func (g *Game) update() {
 	for client := range g.clients {
 		client.applyInputs()
+	}
+
+	for client := range g.clients {
+		for i := len(client.snowballs) - 1; i >= 0; i-- {
+			snowball := client.snowballs[i]
+			snowball.X += float32(math.Cos(float64(snowball.Angle))) * 20.0
+			snowball.Y += float32(math.Sin(float64(snowball.Angle))) * 20.0
+			if snowball.X > 980 || snowball.X < -10 || snowball.Y < -10 || snowball.Y > 560 {
+				client.snowballs = RemoveIndex(client.snowballs, i)
+			}
+		}
 	}
 
 	g.sendToAll()

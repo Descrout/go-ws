@@ -15,10 +15,14 @@ type Client struct {
 	conn *websocket.Conn
 	send chan []byte
 
-	player        *Player
-	pendingInputs []*UserInput
-	lastSeq       uint32
-	ID            byte
+	snowballCounter uint32
+	player          *Player
+	snowballs       []*Snowball
+	pendingInputs   []*UserInput
+	lastSeq         uint32
+	ID              byte
+
+	shootTimer float32
 }
 
 func (c *Client) applyInputs() {
@@ -29,12 +33,27 @@ func (c *Client) applyInputs() {
 			continue
 		}
 
+		var speed float32 = 150
+		if input.Shooting {
+			speed = 50
+		}
+
 		if input.Moving {
-			c.player.X += float32(math.Cos(float64(input.MoveAngle))) * 100 * input.InputTime
-			c.player.Y += float32(math.Sin(float64(input.MoveAngle))) * 100 * input.InputTime
+			c.player.X += float32(math.Cos(float64(input.MoveAngle))) * speed * input.InputTime
+			c.player.Y += float32(math.Sin(float64(input.MoveAngle))) * speed * input.InputTime
 		}
 		c.player.Angle = input.LookAngle
 		c.lastSeq = input.Sequence
+		c.player.Shooting = input.Shooting
+
+		if input.Shooting {
+			if c.shootTimer < 0 {
+				c.shootTimer = 0.2
+				c.snowballs = append(c.snowballs, &Snowball{Id: c.snowballCounter, ParentId: c.player.Id, X: c.player.X, Y: c.player.Y, Angle: c.player.Angle})
+				c.snowballCounter++
+			}
+		}
+		c.shootTimer -= input.InputTime
 	}
 }
 
@@ -101,7 +120,7 @@ func serveWs(game *Game, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{game: game, conn: conn, send: make(chan []byte, 256), player: &Player{}, pendingInputs: []*UserInput{}}
+	client := &Client{game: game, conn: conn, send: make(chan []byte, 256), player: &Player{}, pendingInputs: []*UserInput{}, snowballs: []*Snowball{}}
 	client.game.register <- client
 
 	go client.listenWrite()

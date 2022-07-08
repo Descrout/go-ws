@@ -1,11 +1,12 @@
 const players = new Map();
+const snowballs = new Map();
 const keys = new Map(); 
 
 let dx = 0;
 let dy = 0;
 let sequence = 0;
 let pending_inputs = [];
-const server_tick = 100;
+const server_tick = 50;
 
 function setup() {
 	canvas = createCanvas(960, 540);
@@ -43,6 +44,10 @@ function draw() {
 	for(const player of players.values()) {
 		player.render();
 	}
+
+	for(const snowball of snowballs.values()) {
+		snowball.render();
+	}
 }
 
 function interpolateEntities() {
@@ -60,22 +65,47 @@ function interpolateEntities() {
 		}
 
 		if (buffer.length >= 2 && buffer[0][0] <= render_timestamp && render_timestamp <= buffer[1][0]) {
-			const pos0 = buffer[0][1];
-			const pos1 = buffer[1][1];
+			const state0 = buffer[0][1];
+			const state1 = buffer[1][1];
 			const t0 = buffer[0][0]; //time0
 			const t1 = buffer[1][0]; //time1
 
 			const lerp_factor = (render_timestamp - t0) / (t1 - t0);
 
 			//Position lerp
-			player.data.x = pos0.x + (pos1.x - pos0.x) * lerp_factor;
-			player.data.y = pos0.y + (pos1.y - pos0.y) * lerp_factor;
+			player.data.x = state0.x + (state1.x - state0.x) * lerp_factor;
+			player.data.y = state0.y + (state1.y - state0.y) * lerp_factor;
 
 			//Rotation lerp
 			const max = Math.PI * 2;
-			const da = (pos1.angle - pos0.angle) % max;
+			const da = (state1.angle - state0.angle) % max;
 			const short = 2 * da % max - da;
-			player.data.angle = pos0.angle + short * lerp_factor;
+			player.data.angle = state0.angle + short * lerp_factor;
+
+			player.data.shooting = buffer[1][1].shooting;
+		}
+	}
+
+	//////
+	for (const [key, snowball] of snowballs.entries()) {
+		let buffer = snowball.pos_buffer;
+
+
+		while (buffer.length >= 2 && buffer[1][0] <= render_timestamp) {
+			buffer.shift();
+		}
+
+		if (buffer.length >= 2 && buffer[0][0] <= render_timestamp && render_timestamp <= buffer[1][0]) {
+			const state0 = buffer[0][1];
+			const state1 = buffer[1][1];
+			const t0 = buffer[0][0]; //time0
+			const t1 = buffer[1][0]; //time1
+
+			const lerp_factor = (render_timestamp - t0) / (t1 - t0);
+
+			//Position lerp
+			snowball.data.x = state0.x + (state1.x - state0.x) * lerp_factor;
+			snowball.data.y = state0.y + (state1.y - state0.y) * lerp_factor;
 		}
 	}
 }
@@ -105,7 +135,7 @@ function send(dt) {
 		input_time: dt,
 		move_angle: atan2(dy, dx),
 		moving: dx != 0 || dy != 0,
-		shooting: false,
+		shooting: mouseIsPressed,
 		look_angle: atan2(mdy, mdx),
 		sequence: sequence++,
 	};
@@ -148,6 +178,25 @@ function received(header, obj) {
 			players.delete(id);
 		}else {
 			player.deleteNextFrame = true;
+		}
+	}
+
+	////////////////////
+	for(const sState of state.snowballs) {
+		const key = `${sState.id}|${sState.parent_id}`;
+		if(!snowballs.has(key)) {
+			snowballs.set(key, new SnowballEntity(sState));
+		}else {
+			const snowball = snowballs.get(key);
+			snowball.deleteNextFrame = false;
+			snowball.pos_buffer.push([Date.now(), sState]);
+		}
+	}
+	for(const [key,snowball] of snowballs.entries()) {
+		if(snowball.deleteNextFrame) {
+			snowballs.delete(key);
+		}else {
+			snowball.deleteNextFrame = true;
 		}
 	}
 }
