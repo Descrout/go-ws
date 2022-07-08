@@ -2,7 +2,7 @@ const address = `ws://127.0.0.1:8080/ws`;
 
 let canvas, scaleMultiplier, mouse, socket;
 
-let connectionSuccess = false;
+let myID = -1;
 
 let state;
 
@@ -17,7 +17,7 @@ class Parser {
     static deSerialize(data) {
         let pbf = new Pbf(data.slice(1));
         switch (data[0]) {
-            case 0: return State.read(pbf);
+            case 1: return State.read(pbf);
             default:
                 console.error("Receive header doesn't match");
                 return;

@@ -10,6 +10,7 @@ type Game struct {
 	clients    map[*Client]bool
 	register   chan *Client
 	unregister chan *Client
+	lastID     byte
 }
 
 func newGame() *Game {
@@ -29,7 +30,11 @@ func (g *Game) run() {
 	for {
 		select {
 		case client := <-g.register:
+			g.lastID += 1
+			client.ID = g.lastID
+			client.player.Id = uint32(g.lastID)
 			g.clients[client] = true
+			client.send <- []byte{0, client.ID}
 		case client := <-g.unregister:
 			if _, ok := g.clients[client]; ok {
 				delete(g.clients, client)
@@ -54,7 +59,7 @@ func (g *Game) sendToAll() {
 	for client := range g.clients {
 		state.MyLastSeq = client.lastSeq
 		data, _ := proto.Marshal(&state)
-		data = append([]byte{0}, data...)
+		data = append([]byte{1}, data...)
 
 		select {
 		case client.send <- data:

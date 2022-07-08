@@ -18,6 +18,7 @@ type Client struct {
 	player        *Player
 	pendingInputs []*UserInput
 	lastSeq       uint32
+	ID            byte
 }
 
 func (c *Client) applyInputs() {
@@ -32,7 +33,7 @@ func (c *Client) applyInputs() {
 			c.player.X += float32(math.Cos(float64(input.MoveAngle))) * 100 * input.InputTime
 			c.player.Y += float32(math.Sin(float64(input.MoveAngle))) * 100 * input.InputTime
 		}
-
+		c.player.Angle = input.LookAngle
 		c.lastSeq = input.Sequence
 	}
 }

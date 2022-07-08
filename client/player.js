@@ -1,6 +1,16 @@
 class PlayerEntity {
     constructor(data) {
         this.data = data;
+        this.deleteNextFrame = false;
+        this.pos_buffer = [];
+    }
+
+    applyInput(input) {
+        if (input.moving) {
+			this.data.x += cos(input.move_angle) * 100 * input.input_time
+			this.data.y += sin(input.move_angle) * 100 * input.input_time
+		}
+        this.data.angle = input.look_angle;
     }
 
     render() {
