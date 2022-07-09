@@ -15,12 +15,11 @@ type Client struct {
 	conn *websocket.Conn
 	send chan []byte
 
-	snowballCounter uint32
-	player          *Player
-	snowballs       []*Snowball
-	pendingInputs   []*UserInput
-	lastSeq         uint32
-	ID              byte
+	player        *Player
+	snowballs     []*Snowball
+	pendingInputs []*UserInput
+	lastSeq       uint32
+	ID            byte
 
 	shootTimer float32
 }
@@ -29,7 +28,7 @@ func (c *Client) applyInputs() {
 	for len(c.pendingInputs) > 0 {
 		var input *UserInput
 		input, c.pendingInputs = c.pendingInputs[0], c.pendingInputs[1:]
-		if math.Abs(float64(input.InputTime)) > 1.0/33.0 {
+		if math.Abs(float64(input.InputTime)) > 0.033 {
 			continue
 		}
 
@@ -49,8 +48,7 @@ func (c *Client) applyInputs() {
 		if input.Shooting {
 			if c.shootTimer < 0 {
 				c.shootTimer = 0.2
-				c.snowballs = append(c.snowballs, &Snowball{Id: c.snowballCounter, ParentId: c.player.Id, X: c.player.X, Y: c.player.Y, Angle: c.player.Angle})
-				c.snowballCounter++
+				c.snowballs = append(c.snowballs, &Snowball{Id: input.Sequence, ParentId: c.player.Id, X: c.player.X, Y: c.player.Y, Angle: c.player.Angle})
 			}
 		}
 		c.shootTimer -= input.InputTime

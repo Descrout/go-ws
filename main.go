@@ -36,7 +36,7 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(game, w, r)
 	})
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":6464", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

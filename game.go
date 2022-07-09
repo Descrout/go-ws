@@ -7,6 +7,12 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+const (
+	hz     = 30.0
+	tickMS = 1000 / int(hz)
+	delta  = 1.0 / hz
+)
+
 type Game struct {
 	clients    map[*Client]bool
 	register   chan *Client
@@ -23,7 +29,7 @@ func newGame() *Game {
 }
 
 func (g *Game) run() {
-	ticker := time.NewTicker(time.Millisecond * 50)
+	ticker := time.NewTicker(time.Millisecond * time.Duration(tickMS))
 	defer func() {
 		ticker.Stop()
 	}()
@@ -80,8 +86,8 @@ func (g *Game) update() {
 	for client := range g.clients {
 		for i := len(client.snowballs) - 1; i >= 0; i-- {
 			snowball := client.snowballs[i]
-			snowball.X += float32(math.Cos(float64(snowball.Angle))) * 20.0
-			snowball.Y += float32(math.Sin(float64(snowball.Angle))) * 20.0
+			snowball.X += float32(math.Cos(float64(snowball.Angle))) * 600.0 * delta
+			snowball.Y += float32(math.Sin(float64(snowball.Angle))) * 600.0 * delta
 			if snowball.X > 980 || snowball.X < -10 || snowball.Y < -10 || snowball.Y > 560 {
 				client.snowballs = RemoveIndex(client.snowballs, i)
 			}

@@ -1,12 +1,16 @@
 const players = new Map();
 const snowballs = new Map();
+const mySnowballs = new Map();
 const keys = new Map(); 
+
+//const incomingPackets = [];
+//let accumulator = 0.0;
 
 let dx = 0;
 let dy = 0;
 let sequence = 0;
 let pending_inputs = [];
-const server_tick = 50;
+const server_tick = 33;
 
 function setup() {
 	canvas = createCanvas(960, 540);
@@ -18,6 +22,12 @@ function setup() {
 	socket = new Network(address);
 
 	let promise = socket.connect(received);
+	/*
+	(header,obj) => {
+		incomingPackets.push(obj);
+	}
+	*/
+
 	if (promise) {
         promise.then(() => {
 			loop();
@@ -33,12 +43,13 @@ function draw() {
 	let dt = deltaTime / 1000;
 	if (dt > 0.033) dt = 0.033;
 
-	interpolateEntities();
+	//Interpolate
+	interpolateEntities(dt);
 	
-	// SEND
+	//Send
 	send(dt);
 	
-	// Draw
+	//Draw
 	background(255);
 
 	for(const player of players.values()) {
@@ -46,11 +57,17 @@ function draw() {
 	}
 
 	for(const snowball of snowballs.values()) {
-		snowball.render();
+		if(snowball.data.parent_id == myID) snowball.render();
+	}
+
+	for(const mySnowball of mySnowballs.values()) {
+		if(mySnowball.data.parent_id == myID) continue;
+		mySnowball.render(true);
+		mySnowball.move(dt);
 	}
 }
 
-function interpolateEntities() {
+function interpolateEntities(dt) {
 	const now = Date.now();
 	const render_timestamp = now - server_tick;
 
@@ -72,9 +89,17 @@ function interpolateEntities() {
 
 			const lerp_factor = (render_timestamp - t0) / (t1 - t0);
 
+			const beforeX = player.data.x;
+			const beforeY = player.data.y;
+
 			//Position lerp
 			player.data.x = state0.x + (state1.x - state0.x) * lerp_factor;
 			player.data.y = state0.y + (state1.y - state0.y) * lerp_factor;
+
+			const dx = beforeX - player.data.x;
+			const dy = beforeY - player.data.y;
+			player.last_moving = dx != 0 || dy != 0;
+			player.last_move_angle = atan2(dy,dx);
 
 			//Rotation lerp
 			const max = Math.PI * 2;
@@ -82,7 +107,16 @@ function interpolateEntities() {
 			const short = 2 * da % max - da;
 			player.data.angle = state0.angle + short * lerp_factor;
 
-			player.data.shooting = buffer[1][1].shooting;
+			player.data.shooting = state1.shooting;
+		}else {
+			// let speed = 100;
+			// if(player.data.shooting) {
+			// 	speed = 50;
+			// }
+			// if (player.last_moving) {
+			// 	player.data.x += cos(player.last_move_angle) * speed * dt;
+			// 	player.data.y += sin(player.last_move_angle) * speed * dt;
+			// }
 		}
 	}
 
@@ -106,6 +140,10 @@ function interpolateEntities() {
 			//Position lerp
 			snowball.data.x = state0.x + (state1.x - state0.x) * lerp_factor;
 			snowball.data.y = state0.y + (state1.y - state0.y) * lerp_factor;
+			snowball.data.angle = state1.angle;
+		}else {
+			snowball.data.x += cos(snowball.data.angle) * 600 * dt;
+			snowball.data.y += sin(snowball.data.angle) * 600 * dt;
 		}
 	}
 }
@@ -154,6 +192,7 @@ function keyReleased() {
 
 function received(header, obj) {
 	state = obj;
+	const now = Date.now();
 	for(const pState of state.players) {
 		if(!players.has(pState.id)) {
 			players.set(pState.id, new PlayerEntity(pState));
@@ -169,7 +208,7 @@ function received(header, obj) {
                     player.applyInput(input);
                 });
 			}else {
-				player.pos_buffer.push([Date.now(), pState]);
+				player.pos_buffer.push([now, pState]);
 			}
 		}
 	}
@@ -183,14 +222,27 @@ function received(header, obj) {
 
 	////////////////////
 	for(const sState of state.snowballs) {
-		const key = `${sState.id}|${sState.parent_id}`;
-		if(!snowballs.has(key)) {
-			snowballs.set(key, new SnowballEntity(sState));
-		}else {
+		//if(sState.parent_id != myID) {
+			const key = `${sState.id}|${sState.parent_id}`;
+			if(!snowballs.has(key)) {
+				snowballs.set(key, new SnowballEntity(sState));
+			} 
 			const snowball = snowballs.get(key);
 			snowball.deleteNextFrame = false;
-			snowball.pos_buffer.push([Date.now(), sState]);
-		}
+			snowball.pos_buffer.push([now, sState]);
+		//}
+		//if(sState.parent_id == myID) {
+			//const key = `${sState.id}|${sState.parent_id}`;
+			if(!mySnowballs.has(key)) {
+				mySnowballs.set(key, new SnowballEntity({
+					id: sState.id,
+					parent_id: sState.parent_id,
+					x: sState.x,
+					y: sState.y,
+					angle: sState.angle,
+				}));
+			} 
+		//}
 	}
 	for(const [key,snowball] of snowballs.entries()) {
 		if(snowball.deleteNextFrame) {
@@ -204,3 +256,13 @@ function received(header, obj) {
 function windowResized() {
 	scaleMultiplier = scaleToWindow(canvas.elt);
 }
+
+// function waitRecv(dt) {
+// 	const server_dt = server_tick / 1000.0;
+// 	accumulator += dt;
+// 	while (accumulator >= server_dt) {
+// 		accumulator -= server_dt;
+// 		while (incomingPackets.length > 0)
+// 			received(1, incomingPackets.shift());
+// 	}
+// }

@@ -3,6 +3,9 @@ class PlayerEntity {
         this.data = data;
         this.deleteNextFrame = false;
         this.pos_buffer = [];
+
+        this.last_moving = false;
+        this.last_move_angle = 0;
     }
 
     applyInput(input) {
@@ -11,8 +14,8 @@ class PlayerEntity {
             speed = 50;
         }
         if (input.moving) {
-			this.data.x += cos(input.move_angle) * speed * input.input_time
-			this.data.y += sin(input.move_angle) * speed * input.input_time
+			this.data.x += cos(input.move_angle) * speed * input.input_time;
+			this.data.y += sin(input.move_angle) * speed * input.input_time;
 		}
         this.data.angle = input.look_angle;
         this.data.shooting = input.shooting;
