@@ -7,7 +7,7 @@ class PlayerEntity {
         this.last_moving = false;
         this.last_move_angle = 0;
 
-        this.body = new Body(0, 0, 20);
+        this.body = new Body(data.x, data.y, 22);
     }
 
     applyInput(input) {
@@ -33,5 +33,52 @@ class PlayerEntity {
         strokeWeight(2);
         circle(this.data.x, this.data.y, 40);
         line(this.data.x, this.data.y, this.data.x + cos(this.data.angle) * 20, this.data.y + sin(this.data.angle) * 20);
+    }
+
+    interpolate(render_timestamp) {
+        let buffer = this.pos_buffer;
+
+
+        while (buffer.length >= 2 && buffer[1][0] <= render_timestamp) {
+            buffer.shift();
+        }
+
+        if (buffer.length >= 2 && buffer[0][0] <= render_timestamp && render_timestamp <= buffer[1][0]) {
+            const state0 = buffer[0][1];
+            const state1 = buffer[1][1];
+            const t0 = buffer[0][0]; //time0
+            const t1 = buffer[1][0]; //time1
+
+            const lerp_factor = (render_timestamp - t0) / (t1 - t0);
+
+            const beforeX = this.data.x;
+            const beforeY = this.data.y;
+
+            //Position lerp
+            this.data.x = state0.x + (state1.x - state0.x) * lerp_factor;
+            this.data.y = state0.y + (state1.y - state0.y) * lerp_factor;
+
+            const dx = beforeX - this.data.x;
+            const dy = beforeY - this.data.y;
+            this.last_moving = dx != 0 || dy != 0;
+            this.last_move_angle = atan2(dy, dx);
+
+            //Rotation lerp
+            const max = Math.PI * 2;
+            const da = (state1.angle - state0.angle) % max;
+            const short = 2 * da % max - da;
+            this.data.angle = state0.angle + short * lerp_factor;
+
+            this.data.shooting = state1.shooting;
+        } else {
+            // let speed = 100;
+            // if(this.data.shooting) {
+            // 	speed = 50;
+            // }
+            // if (this.last_moving) {
+            // 	this.data.x += cos(this.last_move_angle) * speed * dt;
+            // 	this.data.y += sin(this.last_move_angle) * speed * dt;
+            // }
+        }
     }
 }

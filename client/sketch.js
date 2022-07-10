@@ -1,10 +1,8 @@
 const players = new Map();
 const snowballs = new Map();
-const mySnowballs = new Map();
 const keys = new Map();
 
-//const incomingPackets = [];
-//let accumulator = 0.0;
+let accumulator = 0.0;
 
 let dx = 0;
 let dy = 0;
@@ -22,11 +20,6 @@ function setup() {
 	socket = new Network(address);
 
 	let promise = socket.connect(received);
-	/*
-	(header,obj) => {
-		incomingPackets.push(obj);
-	}
-	*/
 
 	if (promise) {
 		promise.then(() => {
@@ -46,14 +39,11 @@ function draw() {
 	//Interpolate
 	interpolateEntities(dt);
 
-	for (const player of players.values()) {
-		for (const other of players.values()) {
-			if (player == other) continue;
-			if (Physics.circle_circle_collision(player.body, other.body)) {
-				Physics.circle_circle_pen_res(player.body, other.body);
-				Physics.circle_circle_coll_res(player.body, other.body);
-			}
-		}
+	const server_dt = server_tick / 1000.0;
+	accumulator += dt;
+	while (accumulator >= server_dt) {
+		accumulator -= server_dt;
+		updatePhysics();
 	}
 
 	//Send
@@ -62,18 +52,12 @@ function draw() {
 	//Draw
 	background(255);
 
+	for (const snowball of snowballs.values()) {
+		snowball.render();
+	}
+
 	for (const player of players.values()) {
 		player.render();
-	}
-
-	for (const snowball of snowballs.values()) {
-		if (snowball.data.parent_id == myID) snowball.render();
-	}
-
-	for (const mySnowball of mySnowballs.values()) {
-		if (mySnowball.data.parent_id == myID) continue;
-		mySnowball.render(true);
-		mySnowball.move(dt);
 	}
 }
 
@@ -83,78 +67,11 @@ function interpolateEntities(dt) {
 
 	for (const [id, player] of players.entries()) {
 		if (id == myID) continue;
-
-		let buffer = player.pos_buffer;
-
-
-		while (buffer.length >= 2 && buffer[1][0] <= render_timestamp) {
-			buffer.shift();
-		}
-
-		if (buffer.length >= 2 && buffer[0][0] <= render_timestamp && render_timestamp <= buffer[1][0]) {
-			const state0 = buffer[0][1];
-			const state1 = buffer[1][1];
-			const t0 = buffer[0][0]; //time0
-			const t1 = buffer[1][0]; //time1
-
-			const lerp_factor = (render_timestamp - t0) / (t1 - t0);
-
-			const beforeX = player.data.x;
-			const beforeY = player.data.y;
-
-			//Position lerp
-			player.data.x = state0.x + (state1.x - state0.x) * lerp_factor;
-			player.data.y = state0.y + (state1.y - state0.y) * lerp_factor;
-
-			const dx = beforeX - player.data.x;
-			const dy = beforeY - player.data.y;
-			player.last_moving = dx != 0 || dy != 0;
-			player.last_move_angle = atan2(dy, dx);
-
-			//Rotation lerp
-			const max = Math.PI * 2;
-			const da = (state1.angle - state0.angle) % max;
-			const short = 2 * da % max - da;
-			player.data.angle = state0.angle + short * lerp_factor;
-
-			player.data.shooting = state1.shooting;
-		} else {
-			// let speed = 100;
-			// if(player.data.shooting) {
-			// 	speed = 50;
-			// }
-			// if (player.last_moving) {
-			// 	player.data.x += cos(player.last_move_angle) * speed * dt;
-			// 	player.data.y += sin(player.last_move_angle) * speed * dt;
-			// }
-		}
+		player.interpolate(render_timestamp);
 	}
 
-	//////
-	for (const [key, snowball] of snowballs.entries()) {
-		let buffer = snowball.pos_buffer;
-
-
-		while (buffer.length >= 2 && buffer[1][0] <= render_timestamp) {
-			buffer.shift();
-		}
-
-		if (buffer.length >= 2 && buffer[0][0] <= render_timestamp && render_timestamp <= buffer[1][0]) {
-			const state0 = buffer[0][1];
-			const state1 = buffer[1][1];
-			const t0 = buffer[0][0]; //time0
-			const t1 = buffer[1][0]; //time1
-
-			const lerp_factor = (render_timestamp - t0) / (t1 - t0);
-
-			//Position lerp
-			snowball.data.x = state0.x + (state1.x - state0.x) * lerp_factor;
-			snowball.data.y = state0.y + (state1.y - state0.y) * lerp_factor;
-			snowball.data.angle = state1.angle;
-		} else {
-			snowball.data.x += cos(snowball.data.angle) * 600 * dt;
-			snowball.data.y += sin(snowball.data.angle) * 600 * dt;
-		}
+	for (const snowball of snowballs.values()) {
+		snowball.interpolate(render_timestamp);
 	}
 }
 
@@ -242,25 +159,25 @@ function received(header, obj) {
 		}
 		const snowball = snowballs.get(key);
 		snowball.deleteNextFrame = false;
+		print(sState);
 		snowball.pos_buffer.push([now, sState]);
 		//}
 		//if(sState.parent_id == myID) {
 		//const key = `${sState.id}|${sState.parent_id}`;
-		if (!mySnowballs.has(key)) {
-			mySnowballs.set(key, new SnowballEntity({
-				id: sState.id,
-				parent_id: sState.parent_id,
-				x: sState.x,
-				y: sState.y,
-				angle: sState.angle,
-			}));
-		}
+		// if (!mySnowballs.has(key)) {
+		// 	mySnowballs.set(key, new SnowballEntity({
+		// 		id: sState.id,
+		// 		parent_id: sState.parent_id,
+		// 		x: sState.x,
+		// 		y: sState.y,
+		// 		angle: sState.angle,
+		// 	}));
+		// }
 		//}
 	}
 	for (const [key, snowball] of snowballs.entries()) {
 		if (snowball.deleteNextFrame) {
 			snowballs.delete(key);
-			mySnowballs.delete(key);
 		} else {
 			snowball.deleteNextFrame = true;
 		}
@@ -271,12 +188,26 @@ function windowResized() {
 	scaleMultiplier = scaleToWindow(canvas.elt);
 }
 
-// function waitRecv(dt) {
-// 	const server_dt = server_tick / 1000.0;
-// 	accumulator += dt;
-// 	while (accumulator >= server_dt) {
-// 		accumulator -= server_dt;
-// 		while (incomingPackets.length > 0)
-// 			received(1, incomingPackets.shift());
-// 	}
-// }
+function updatePhysics() {
+	for (const snowball of snowballs.values()) {
+		snowball.body.pos[0] = snowball.data.x;
+		snowball.body.pos[1] = snowball.data.y;
+		snowball.body.update(0.033);
+	}
+	for (const player of players.values()) {
+		for (const other of players.values()) {
+			if (player == other) continue;
+			if (Physics.circle_circle_collision(player.body, other.body)) {
+				Physics.circle_circle_pen_res(player.body, other.body);
+				Physics.circle_circle_coll_res(player.body, other.body);
+			}
+		}
+		for (const snowball of snowballs.values()) {
+			if (player.id == snowball.parent_id) continue;
+			if (Physics.circle_circle_collision(player.body, snowball.body)) {
+				Physics.circle_circle_pen_res(player.body, snowball.body);
+				Physics.circle_circle_coll_res(player.body, snowball.body);
+			}
+		}
+	}
+}

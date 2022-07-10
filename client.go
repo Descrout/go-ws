@@ -11,6 +11,11 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+type SnowballB struct {
+	Snowball
+	body *physics.Body
+}
+
 type Client struct {
 	game *Game
 	conn *websocket.Conn
@@ -18,7 +23,7 @@ type Client struct {
 
 	player        *Player
 	body          *physics.Body
-	snowballs     []*Snowball
+	snowballs     []*SnowballB
 	pendingInputs []*UserInput
 	lastSeq       uint32
 	ID            byte
@@ -26,7 +31,8 @@ type Client struct {
 	shootTimer float32
 }
 
-func (c *Client) applyInputs() {
+func (c *Client) applyInputs() bool {
+	updated := false
 	for len(c.pendingInputs) > 0 {
 		var input *UserInput
 		input, c.pendingInputs = c.pendingInputs[0], c.pendingInputs[1:]
@@ -45,9 +51,9 @@ func (c *Client) applyInputs() {
 		}
 
 		c.body.Update(input.InputTime)
-
 		c.player.X = c.body.Pos.X
 		c.player.Y = c.body.Pos.Y
+		updated = true
 
 		c.player.Angle = input.LookAngle
 		c.lastSeq = input.Sequence
@@ -56,11 +62,15 @@ func (c *Client) applyInputs() {
 		if input.Shooting {
 			if c.shootTimer < 0 {
 				c.shootTimer = 0.2
-				c.snowballs = append(c.snowballs, &Snowball{Id: input.Sequence, ParentId: c.player.Id, X: c.player.X, Y: c.player.Y, Angle: c.player.Angle})
+				body := physics.NewBody(c.player.X, c.player.Y, 8, 1)
+				body.Friction = 0.95
+				body.ApplyForce(float32(math.Cos(float64(input.LookAngle)))*15000.0, float32(math.Sin(float64(input.LookAngle)))*15000.0)
+				c.snowballs = append(c.snowballs, &SnowballB{Snowball: Snowball{Id: input.Sequence, ParentId: c.player.Id, X: c.player.X, Y: c.player.Y, Angle: c.player.Angle}, body: body})
 			}
 		}
 		c.shootTimer -= input.InputTime
 	}
+	return updated
 }
 
 func (c *Client) listenRead() {
@@ -126,7 +136,8 @@ func serveWs(game *Game, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{game: game, conn: conn, send: make(chan []byte, 256), body: physics.NewBody(0, 0, 20, 0), player: &Player{}, pendingInputs: []*UserInput{}, snowballs: []*Snowball{}}
+	body := physics.NewBody(100, 100, 22, 0)
+	client := &Client{game: game, conn: conn, send: make(chan []byte, 256), body: body, player: &Player{X: 100, Y: 100}, pendingInputs: []*UserInput{}, snowballs: []*SnowballB{}}
 	client.game.register <- client
 
 	go client.listenWrite()
