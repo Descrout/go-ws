@@ -48,6 +48,6 @@ func (b *Body) Update(dt float32) {
 	b.Pos.Y += b.Vel.Y * dt
 	b.Acc.Mult(0)
 	if b.Friction < 1.0 {
-		b.Vel.Mult(float32(math.Pow(float64(b.Friction), float64(dt*30))))
+		b.Vel.Mult(float32(math.Pow(float64(b.Friction), float64(dt*60))))
 	}
 }

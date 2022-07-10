@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"time"
+	"ws-server/physics"
 
 	"github.com/gorilla/websocket"
 	"google.golang.org/protobuf/proto"
@@ -16,6 +17,7 @@ type Client struct {
 	send chan []byte
 
 	player        *Player
+	body          *physics.Body
 	snowballs     []*Snowball
 	pendingInputs []*UserInput
 	lastSeq       uint32
@@ -32,15 +34,21 @@ func (c *Client) applyInputs() {
 			continue
 		}
 
-		var speed float32 = 150
+		var speed float32 = 800
 		if input.Shooting {
-			speed = 50
+			speed = 300
 		}
 
 		if input.Moving {
-			c.player.X += float32(math.Cos(float64(input.MoveAngle))) * speed * input.InputTime
-			c.player.Y += float32(math.Sin(float64(input.MoveAngle))) * speed * input.InputTime
+			c.body.Acc.X = float32(math.Cos(float64(input.MoveAngle))) * speed
+			c.body.Acc.Y = float32(math.Sin(float64(input.MoveAngle))) * speed
 		}
+
+		c.body.Update(input.InputTime)
+
+		c.player.X = c.body.Pos.X
+		c.player.Y = c.body.Pos.Y
+
 		c.player.Angle = input.LookAngle
 		c.lastSeq = input.Sequence
 		c.player.Shooting = input.Shooting
@@ -118,7 +126,7 @@ func serveWs(game *Game, w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		return
 	}
-	client := &Client{game: game, conn: conn, send: make(chan []byte, 256), player: &Player{}, pendingInputs: []*UserInput{}, snowballs: []*Snowball{}}
+	client := &Client{game: game, conn: conn, send: make(chan []byte, 256), body: physics.NewBody(0, 0, 20, 0), player: &Player{}, pendingInputs: []*UserInput{}, snowballs: []*Snowball{}}
 	client.game.register <- client
 
 	go client.listenWrite()

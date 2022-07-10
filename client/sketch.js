@@ -46,6 +46,16 @@ function draw() {
 	//Interpolate
 	interpolateEntities(dt);
 
+	for (const player of players.values()) {
+		for (const other of players.values()) {
+			if (player == other) continue;
+			if (Physics.circle_circle_collision(player.body, other.body)) {
+				Physics.circle_circle_pen_res(player.body, other.body);
+				Physics.circle_circle_coll_res(player.body, other.body);
+			}
+		}
+	}
+
 	//Send
 	send(dt);
 
@@ -202,6 +212,8 @@ function received(header, obj) {
 			player.deleteNextFrame = false;
 			if (pState.id == myID) {
 				player.data = pState;
+				player.body.pos[0] = pState.x;
+				player.body.pos[1] = pState.y;
 				pending_inputs = pending_inputs.filter(input => {
 					return input.sequence > state.my_last_seq;
 				});

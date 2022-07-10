@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"time"
+	"ws-server/physics"
 
 	"google.golang.org/protobuf/proto"
 )
@@ -81,6 +82,18 @@ func (g *Game) sendToAll() {
 func (g *Game) update() {
 	for client := range g.clients {
 		client.applyInputs()
+	}
+
+	for player := range g.clients {
+		for other := range g.clients {
+			if player == other {
+				continue
+			}
+			if physics.CircleCircleCollision(player.body, other.body) {
+				physics.CircleCirclePenRes(player.body, other.body)
+				physics.CircleCirclePenRes(player.body, other.body)
+			}
+		}
 	}
 
 	for client := range g.clients {
