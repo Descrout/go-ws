@@ -36,15 +36,15 @@ function draw() {
 	let dt = deltaTime / 1000;
 	if (dt > 0.033) dt = 0.033;
 
-	//Interpolate
-	interpolateEntities(dt);
-
 	const server_dt = server_tick / 1000.0;
 	accumulator += dt;
 	while (accumulator >= server_dt) {
 		accumulator -= server_dt;
 		updatePhysics();
 	}
+
+	//Interpolate
+	interpolateEntities(dt);
 
 	//Send
 	send(dt);
@@ -127,10 +127,10 @@ function received(header, obj) {
 		} else {
 			const player = players.get(pState.id);
 			player.deleteNextFrame = false;
+			player.body.pos[0] = pState.x;
+			player.body.pos[1] = pState.y;
 			if (pState.id == myID) {
 				player.data = pState;
-				player.body.pos[0] = pState.x;
-				player.body.pos[1] = pState.y;
 				pending_inputs = pending_inputs.filter(input => {
 					return input.sequence > state.my_last_seq;
 				});
@@ -151,36 +151,18 @@ function received(header, obj) {
 	}
 
 	////////////////////
+	for (const snowball of snowballs.values()) {
+		snowball.deleteNextFrame = true;
+	}
+
 	for (const sState of state.snowballs) {
-		//if(sState.parent_id != myID) {
 		const key = `${sState.id}|${sState.parent_id}`;
 		if (!snowballs.has(key)) {
 			snowballs.set(key, new SnowballEntity(sState));
 		}
 		const snowball = snowballs.get(key);
 		snowball.deleteNextFrame = false;
-		print(sState);
 		snowball.pos_buffer.push([now, sState]);
-		//}
-		//if(sState.parent_id == myID) {
-		//const key = `${sState.id}|${sState.parent_id}`;
-		// if (!mySnowballs.has(key)) {
-		// 	mySnowballs.set(key, new SnowballEntity({
-		// 		id: sState.id,
-		// 		parent_id: sState.parent_id,
-		// 		x: sState.x,
-		// 		y: sState.y,
-		// 		angle: sState.angle,
-		// 	}));
-		// }
-		//}
-	}
-	for (const [key, snowball] of snowballs.entries()) {
-		if (snowball.deleteNextFrame) {
-			snowballs.delete(key);
-		} else {
-			snowball.deleteNextFrame = true;
-		}
 	}
 }
 
@@ -189,24 +171,12 @@ function windowResized() {
 }
 
 function updatePhysics() {
-	for (const snowball of snowballs.values()) {
-		snowball.body.pos[0] = snowball.data.x;
-		snowball.body.pos[1] = snowball.data.y;
-		snowball.body.update(0.033);
-	}
 	for (const player of players.values()) {
 		for (const other of players.values()) {
 			if (player == other) continue;
 			if (Physics.circle_circle_collision(player.body, other.body)) {
 				Physics.circle_circle_pen_res(player.body, other.body);
 				Physics.circle_circle_coll_res(player.body, other.body);
-			}
-		}
-		for (const snowball of snowballs.values()) {
-			if (player.id == snowball.parent_id) continue;
-			if (Physics.circle_circle_collision(player.body, snowball.body)) {
-				Physics.circle_circle_pen_res(player.body, snowball.body);
-				Physics.circle_circle_coll_res(player.body, snowball.body);
 			}
 		}
 	}

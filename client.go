@@ -63,7 +63,7 @@ func (c *Client) applyInputs() bool {
 			if c.shootTimer < 0 {
 				c.shootTimer = 0.2
 				body := physics.NewBody(c.player.X, c.player.Y, 8, 1)
-				body.Friction = 0.95
+				body.Friction = 1
 				body.ApplyForce(float32(math.Cos(float64(input.LookAngle)))*15000.0, float32(math.Sin(float64(input.LookAngle)))*15000.0)
 				c.snowballs = append(c.snowballs, &SnowballB{Snowball: Snowball{Id: input.Sequence, ParentId: c.player.Id, X: c.player.X, Y: c.player.Y, Angle: c.player.Angle}, body: body})
 			}
@@ -91,6 +91,10 @@ func (c *Client) listenRead() {
 		}
 
 		input := UserInput{}
+		if len(c.pendingInputs) > 3 {
+			continue
+		}
+
 		if err := proto.Unmarshal(message[1:], &input); err == nil {
 			c.pendingInputs = append(c.pendingInputs, &input)
 		}

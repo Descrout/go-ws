@@ -103,20 +103,19 @@ func (g *Game) update() {
 
 	for player := range g.clients {
 		for other := range g.clients {
-			if player == other {
+			if player.ID == other.ID {
 				continue
 			}
 			if physics.CircleCircleCollision(player.body, other.body) {
 				physics.CircleCirclePenRes(player.body, other.body)
-				physics.CircleCirclePenRes(player.body, other.body)
+				physics.CircleCircleCollRes(player.body, other.body)
 			}
 			for i := len(player.snowballs) - 1; i >= 0; i-- {
 				snowball := player.snowballs[i]
 				if physics.CircleCircleCollision(other.body, snowball.body) {
 					physics.CircleCirclePenRes(other.body, snowball.body)
-					physics.CircleCirclePenRes(other.body, snowball.body)
-					player.snowballs = RemoveIndex(player.snowballs, i)
-
+					physics.CircleCircleCollRes(other.body, snowball.body)
+					//player.snowballs = RemoveIndex(player.snowballs, i)
 				}
 			}
 		}
