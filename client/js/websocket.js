@@ -12,12 +12,15 @@ class Network {
         this.ws = new WebSocket(this.server);
         this.ws.binaryType = 'arraybuffer';
         this.ws.onmessage = (e) => {
-            let data = new Uint8Array(e.data);
-            if(data[0] == 0) {
-                myID = data[1];
-            }else {
-                let obj = Parser.deSerialize(data);
-                if (obj) cb(data[0], obj);
+            const data = new Uint8Array(e.data);
+            const obj = Parser.deSerialize(data);
+            if (obj) {
+                if (data[0] == 0) {
+                    myID = obj.my_id;
+                    lines = obj.lines.map(l => new Line(l.x1, l.y1, l.x2, l.y2));
+                } else {
+                    cb(data[0], obj);
+                }
             }
         }
 

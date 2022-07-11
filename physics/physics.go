@@ -55,7 +55,7 @@ func CircleLineColRes(circle *Body, line *Line) {
 	temp.Normalize()
 
 	sepVel := circle.Vel.Dot(temp)
-	newSep := sepVel * circle.Elasticity
+	newSep := -sepVel * circle.Elasticity
 	sepDiff := sepVel - newSep
 	temp.Mult(-sepDiff)
 	circle.Vel.Add(temp)

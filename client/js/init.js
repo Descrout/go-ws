@@ -7,23 +7,26 @@ let myID = -1;
 
 let state;
 
-class Parser {
-    static serialize(obj) {
-        let pbf = new Pbf();
-        pbf.writeBytes([0]);
-        UserInput.write(obj, pbf);
-        return pbf.finish().slice(1);
-    }
+let lines;
 
-    static deSerialize(data) {
-        let pbf = new Pbf(data.slice(1));
-        switch (data[0]) {
-            case 1: return State.read(pbf);
-            default:
-                console.error("Receive header doesn't match");
-                return;
-        }
-    }
+class Parser {
+	static serialize(obj) {
+		let pbf = new Pbf();
+		pbf.writeBytes([0]);
+		UserInput.write(obj, pbf);
+		return pbf.finish().slice(1);
+	}
+
+	static deSerialize(data) {
+		let pbf = new Pbf(data.slice(1));
+		switch (data[0]) {
+			case 0: return InitialState.read(pbf);
+			case 1: return State.read(pbf);
+			default:
+				console.error("Receive header doesn't match");
+				return;
+		}
+	}
 }
 
 function scaleToWindow(canvas, backgroundColor) {

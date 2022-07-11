@@ -26,7 +26,7 @@ type Client struct {
 	snowballs     []*SnowballB
 	pendingInputs []*UserInput
 	lastSeq       uint32
-	ID            byte
+	ID            uint32
 
 	shootTimer float32
 }
@@ -62,9 +62,9 @@ func (c *Client) applyInputs() bool {
 		if input.Shooting {
 			if c.shootTimer < 0 {
 				c.shootTimer = 0.2
-				body := physics.NewBody(c.player.X, c.player.Y, 8, 1)
+				body := physics.NewBody(c.player.X, c.player.Y, 8, 0.9)
 				body.Friction = 1
-				body.ApplyForce(float32(math.Cos(float64(input.LookAngle)))*15000.0, float32(math.Sin(float64(input.LookAngle)))*15000.0)
+				body.ApplyForce(float32(math.Cos(float64(input.LookAngle)))*12000.0, float32(math.Sin(float64(input.LookAngle)))*12000.0)
 				c.snowballs = append(c.snowballs, &SnowballB{Snowball: Snowball{Id: input.Sequence, ParentId: c.player.Id, X: c.player.X, Y: c.player.Y, Angle: c.player.Angle}, body: body})
 			}
 		}

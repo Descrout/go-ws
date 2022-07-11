@@ -8,7 +8,7 @@ let dx = 0;
 let dy = 0;
 let sequence = 0;
 let pending_inputs = [];
-const server_tick = 33;
+const server_tick = 45;
 
 function setup() {
 	canvas = createCanvas(960, 540);
@@ -58,6 +58,11 @@ function draw() {
 
 	for (const player of players.values()) {
 		player.render();
+	}
+
+	for (const li of lines) {
+		stroke(200, 100, 50);
+		line(li.start[0], li.start[1], li.end[0], li.end[1]);
 	}
 }
 
@@ -177,6 +182,15 @@ function updatePhysics() {
 			if (Physics.circle_circle_collision(player.body, other.body)) {
 				Physics.circle_circle_pen_res(player.body, other.body);
 				Physics.circle_circle_coll_res(player.body, other.body);
+			}
+		}
+	}
+
+	for (const player of players.values()) {
+		for (const line of lines) {
+			if (Physics.circle_line_collision(player.body, line)) {
+				Physics.circle_line_pen_res(player.body, line);
+				Physics.circle_line_col_res(player.body, line);
 			}
 		}
 	}

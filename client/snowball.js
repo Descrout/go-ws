@@ -6,12 +6,13 @@ class SnowballEntity {
 
         this.willDelete = false;
 
-        this.r = 15;
+        this.r = 16;
     }
 
-    render(isRed) {
+    render() {
         noStroke();
-        fill(0);
+        if (this.data.parent_id == myID) fill(255, 0, 0);
+        else fill(0);
         circle(this.data.x, this.data.y, this.r);
     }
 

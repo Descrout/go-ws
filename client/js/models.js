@@ -2,10 +2,10 @@
 
 // Player ========================================
 
-var Player  = {};
+var Player = {};
 
 Player.read = function (pbf, end) {
-    return pbf.readFields(Player._readField, {id: 0, x: 0, y: 0, angle: 0, shooting: false}, end);
+    return pbf.readFields(Player._readField, { id: 0, x: 0, y: 0, angle: 0, shooting: false }, end);
 };
 Player._readField = function (tag, obj, pbf) {
     if (tag === 1) obj.id = pbf.readVarint();
@@ -24,10 +24,10 @@ Player.write = function (obj, pbf) {
 
 // Snowball ========================================
 
-var Snowball  = {};
+var Snowball = {};
 
 Snowball.read = function (pbf, end) {
-    return pbf.readFields(Snowball._readField, {id: 0, parent_id: 0, x: 0, y: 0, angle: 0}, end);
+    return pbf.readFields(Snowball._readField, { id: 0, parent_id: 0, x: 0, y: 0, angle: 0 }, end);
 };
 Snowball._readField = function (tag, obj, pbf) {
     if (tag === 1) obj.id = pbf.readVarint();
@@ -44,12 +44,48 @@ Snowball.write = function (obj, pbf) {
     if (obj.angle) pbf.writeFloatField(5, obj.angle);
 };
 
+// LineP ========================================
+
+var LineP = {};
+
+LineP.read = function (pbf, end) {
+    return pbf.readFields(LineP._readField, { x1: 0, y1: 0, x2: 0, y2: 0 }, end);
+};
+LineP._readField = function (tag, obj, pbf) {
+    if (tag === 1) obj.x1 = pbf.readFloat();
+    else if (tag === 2) obj.y1 = pbf.readFloat();
+    else if (tag === 3) obj.x2 = pbf.readFloat();
+    else if (tag === 4) obj.y2 = pbf.readFloat();
+};
+LineP.write = function (obj, pbf) {
+    if (obj.x1) pbf.writeFloatField(1, obj.x1);
+    if (obj.y1) pbf.writeFloatField(2, obj.y1);
+    if (obj.x2) pbf.writeFloatField(3, obj.x2);
+    if (obj.y2) pbf.writeFloatField(4, obj.y2);
+};
+
+// InitialState ========================================
+
+var InitialState = {};
+
+InitialState.read = function (pbf, end) {
+    return pbf.readFields(InitialState._readField, { my_id: 0, lines: [] }, end);
+};
+InitialState._readField = function (tag, obj, pbf) {
+    if (tag === 1) obj.my_id = pbf.readVarint();
+    else if (tag === 2) obj.lines.push(LineP.read(pbf, pbf.readVarint() + pbf.pos));
+};
+InitialState.write = function (obj, pbf) {
+    if (obj.my_id) pbf.writeVarintField(1, obj.my_id);
+    if (obj.lines) for (var i = 0; i < obj.lines.length; i++) pbf.writeMessage(2, LineP.write, obj.lines[i]);
+};
+
 // State ========================================
 
-var State  = {};
+var State = {};
 
 State.read = function (pbf, end) {
-    return pbf.readFields(State._readField, {my_last_seq: 0, players: [], snowballs: []}, end);
+    return pbf.readFields(State._readField, { my_last_seq: 0, players: [], snowballs: [] }, end);
 };
 State._readField = function (tag, obj, pbf) {
     if (tag === 1) obj.my_last_seq = pbf.readVarint();
@@ -64,10 +100,10 @@ State.write = function (obj, pbf) {
 
 // UserInput ========================================
 
-var UserInput  = {};
+var UserInput = {};
 
 UserInput.read = function (pbf, end) {
-    return pbf.readFields(UserInput._readField, {move_angle: 0, look_angle: 0, input_time: 0, moving: false, shooting: false, sequence: 0}, end);
+    return pbf.readFields(UserInput._readField, { move_angle: 0, look_angle: 0, input_time: 0, moving: false, shooting: false, sequence: 0 }, end);
 };
 UserInput._readField = function (tag, obj, pbf) {
     if (tag === 1) obj.move_angle = pbf.readFloat();

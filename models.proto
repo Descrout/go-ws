@@ -18,6 +18,18 @@ message Snowball {
     float angle = 5;
 }
 
+message LineP {
+    float x1 = 1;
+    float y1 = 2;
+    float x2 = 3;
+    float y2 = 4;
+}
+
+message InitialState {
+    uint32 my_id = 1;
+    repeated LineP lines = 2;
+}
+
 message State {
     uint32 my_last_seq = 1;
     repeated Player players = 2;
