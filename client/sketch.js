@@ -36,12 +36,7 @@ function draw() {
 	let dt = deltaTime / 1000;
 	if (dt > 0.033) dt = 0.033;
 
-	const server_dt = server_tick / 1000.0;
-	accumulator += dt;
-	while (accumulator >= server_dt) {
-		accumulator -= server_dt;
-		updatePhysics();
-	}
+	updatePhysics();
 
 	//Interpolate
 	interpolateEntities(dt);
@@ -182,6 +177,8 @@ function updatePhysics() {
 			if (Physics.circle_circle_collision(player.body, other.body)) {
 				Physics.circle_circle_pen_res(player.body, other.body);
 				Physics.circle_circle_coll_res(player.body, other.body);
+				player.data.x = player.body.pos[0];
+				player.data.y = player.body.pos[1];
 			}
 		}
 	}
