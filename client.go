@@ -51,6 +51,12 @@ func (c *Client) applyInputs() bool {
 		}
 
 		c.body.Update(input.InputTime)
+		for _, line := range c.game.lines {
+			if physics.CircleLineCollision(c.body, line) {
+				physics.CircleLinePenRes(c.body, line)
+				physics.CircleLineColRes(c.body, line)
+			}
+		}
 		c.player.X = c.body.Pos.X
 		c.player.Y = c.body.Pos.Y
 		updated = true
