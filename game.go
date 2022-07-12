@@ -105,8 +105,6 @@ func (g *Game) update() {
 	for client := range g.clients {
 		if !client.applyInputs() {
 			client.body.Update(delta)
-			client.player.X = client.body.Pos.X
-			client.player.Y = client.body.Pos.Y
 		}
 	}
 
@@ -116,9 +114,6 @@ func (g *Game) update() {
 			snowball.body.Update(delta)
 			snowball.X = snowball.body.Pos.X
 			snowball.Y = snowball.body.Pos.Y
-			// if snowball.X > 980 || snowball.X < -10 || snowball.Y < -10 || snowball.Y > 560 {
-			// 	client.snowballs = RemoveIndex(client.snowballs, i)
-			// }
 		}
 	}
 

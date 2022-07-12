@@ -1,5 +1,5 @@
-const address = `ws://127.0.0.1:6464/ws`;
-//const address = `ws://206.189.111.249:6464/ws`;
+//const address = `ws://127.0.0.1:6464/ws`;
+const address = `ws://206.189.111.249:6464/ws`;
 
 let canvas, scaleMultiplier, mouse, socket;
 

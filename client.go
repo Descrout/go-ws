@@ -51,6 +51,15 @@ func (c *Client) applyInputs() bool {
 		}
 
 		c.body.Update(input.InputTime)
+		for other := range c.game.clients {
+			if c.ID == other.ID {
+				continue
+			}
+			if physics.CircleCircleCollision(c.body, other.body) {
+				physics.CircleCirclePenRes(c.body, other.body)
+				physics.CircleCircleCollRes(c.body, other.body)
+			}
+		}
 		for _, line := range c.game.lines {
 			if physics.CircleLineCollision(c.body, line) {
 				physics.CircleLinePenRes(c.body, line)
