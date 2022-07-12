@@ -1,5 +1,5 @@
 build:
-	go build -ldflags "-s -w" -o bin/main main.go
+	go build -ldflags "-s -w" -o main *.go
 
 run:
 	go run *.go

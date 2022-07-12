@@ -114,6 +114,10 @@ func (g *Game) update() {
 			snowball.body.Update(delta)
 			snowball.X = snowball.body.Pos.X
 			snowball.Y = snowball.body.Pos.Y
+			snowball.Life -= 1
+			if snowball.Life <= 0 {
+				client.snowballs = RemoveIndex(client.snowballs, i)
+			}
 		}
 	}
 

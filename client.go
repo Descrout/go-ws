@@ -14,6 +14,7 @@ import (
 type SnowballB struct {
 	Snowball
 	body *physics.Body
+	Life uint16
 }
 
 type Client struct {
@@ -80,7 +81,7 @@ func (c *Client) applyInputs() bool {
 				body := physics.NewBody(c.player.X, c.player.Y, 8, 0.9)
 				body.Friction = 1
 				body.ApplyForce(float32(math.Cos(float64(input.LookAngle)))*12000.0, float32(math.Sin(float64(input.LookAngle)))*12000.0)
-				c.snowballs = append(c.snowballs, &SnowballB{Snowball: Snowball{Id: input.Sequence, ParentId: c.player.Id, X: c.player.X, Y: c.player.Y, Angle: c.player.Angle}, body: body})
+				c.snowballs = append(c.snowballs, &SnowballB{Life: 90, Snowball: Snowball{Id: input.Sequence, ParentId: c.player.Id, X: c.player.X, Y: c.player.Y, Angle: c.player.Angle}, body: body})
 			}
 		}
 		c.shootTimer -= input.InputTime
