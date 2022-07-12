@@ -24,6 +24,7 @@ class PlayerEntity {
         this.data.shooting = input.shooting;
         this.data.x = this.body.pos[0];
         this.data.y = this.body.pos[1];
+        updatePhysics();
     }
 
     render() {
