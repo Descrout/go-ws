@@ -22,8 +22,7 @@ class PlayerEntity {
         this.body.update(input.input_time);
         this.data.angle = input.look_angle;
         this.data.shooting = input.shooting;
-        this.data.x = this.body.pos[0];
-        this.data.y = this.body.pos[1];
+
 
         for (const line of lines) {
             if (Physics.circle_line_collision(this.body, line)) {
@@ -39,6 +38,9 @@ class PlayerEntity {
                 Physics.circle_circle_coll_res(this.body, other.body);
             }
         }
+
+        this.data.x = this.body.pos[0];
+        this.data.y = this.body.pos[1];
     }
 
     render() {

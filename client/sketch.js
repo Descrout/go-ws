@@ -191,6 +191,8 @@ function updatePhysics() {
 			if (Physics.circle_line_collision(player.body, line)) {
 				Physics.circle_line_pen_res(player.body, line);
 				Physics.circle_line_col_res(player.body, line);
+				player.data.x = player.body.pos[0];
+				player.data.y = player.body.pos[1];
 			}
 		}
 	}
