@@ -40,7 +40,7 @@ function draw() {
 	accumulator += dt;
 	while (accumulator >= server_dt) {
 		accumulator -= server_dt;
-		//updatePhysics();
+		updatePhysics();
 	}
 
 	//Interpolate

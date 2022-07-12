@@ -24,7 +24,21 @@ class PlayerEntity {
         this.data.shooting = input.shooting;
         this.data.x = this.body.pos[0];
         this.data.y = this.body.pos[1];
-        updatePhysics();
+
+        for (const line of lines) {
+            if (Physics.circle_line_collision(this.body, line)) {
+                Physics.circle_line_pen_res(this.body, line);
+                Physics.circle_line_col_res(this.body, line);
+            }
+        }
+
+        for (const other of players.values()) {
+            if (this == other) continue;
+            if (Physics.circle_circle_collision(this.body, other.body)) {
+                Physics.circle_circle_pen_res(this.body, other.body);
+                Physics.circle_circle_coll_res(this.body, other.body);
+            }
+        }
     }
 
     render() {
