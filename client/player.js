@@ -11,9 +11,9 @@ class PlayerEntity {
     }
 
     applyInput(input) {
-        let speed = 800;
+        let speed = 1000;
         if (input.shooting) {
-            speed = 300;
+            speed = 400;
         }
         if (input.moving) {
             this.body.acc[0] = cos(input.move_angle) * speed;
